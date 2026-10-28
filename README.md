@@ -3,11 +3,16 @@
 > **Tagline:** Optimize AI Costs. Preserve Quality. Scale Intelligently.  
 > **Problem Statement:** Code Yudh Hackathon PS-08 — AI Cost Optimization Platform.
 
-[![Tests](https://img.shields.io/badge/tests-16%20passed-emerald)](https://github.com)
+[![Tests](https://img.shields.io/badge/tests-19%20passed-emerald)](https://github.com/25BAI71138-ujjwal/AIvalueGuard)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Frontend-black?logo=vercel)](https://aivalueguard.vercel.app)
+[![Render Backend](https://img.shields.io/badge/Render-Live%20API-46E3B7?logo=render)](https://aivalueguard-backend.onrender.com)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.3+-61DAFB?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-3178C6?logo=typescript)](https://www.typescriptlang.org)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4+-38B2AC?logo=tailwind-css)](https://tailwindcss.com)
+
+🌐 **Live Demo:** [https://aivalueguard.vercel.app](https://aivalueguard.vercel.app)  
+⚡ **API Documentation:** [https://aivalueguard-backend.onrender.com/docs](https://aivalueguard-backend.onrender.com/docs)  
+📦 **GitHub Repository:** [https://github.com/25BAI71138-ujjwal/AIvalueGuard](https://github.com/25BAI71138-ujjwal/AIvalueGuard)
 
 ---
 
