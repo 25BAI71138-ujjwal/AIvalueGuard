@@ -27,9 +27,11 @@ class GeminiProviderAdapter(BaseProviderAdapter):
         if json_mode:
             user_content += "\nRespond strictly in valid JSON format."
 
-        # Model mapping for Gemini API (e.g. gemini-1.5-flash)
-        model_endpoint = model_id if "gemini" in model_id else "gemini-1.5-flash"
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_endpoint}:generateContent?key={self.api_key}"
+        # Candidate models supported by Google Gemini v1beta
+        if "pro" in model_id:
+            candidate_models = [model_id, "gemini-pro-latest", "gemini-2.5-pro", "gemini-flash-latest"]
+        else:
+            candidate_models = [model_id, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"]
 
         payload = {
             "contents": [{
@@ -46,12 +48,24 @@ class GeminiProviderAdapter(BaseProviderAdapter):
             }
 
         start = time.perf_counter()
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(url, json=payload)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = None
+            last_err = ""
+            for m_ver in candidate_models:
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{m_ver}:generateContent?key={self.api_key}"
+                    resp = await client.post(url, json=payload)
+                    if resp.status_code == 200:
+                        break
+                    last_err = f"({m_ver} returned {resp.status_code}): {resp.text[:200]}"
+                except Exception as ex:
+                    last_err = f"({m_ver} connection error: {str(ex)[:100]})"
+
             latency_ms = round((time.perf_counter() - start) * 1000.0, 1)
 
-            if resp.status_code != 200:
-                raise RuntimeError(f"Gemini API Error ({resp.status_code}): {resp.text[:300]}")
+            if not resp or resp.status_code != 200:
+                raise RuntimeError(f"Gemini API Error: {last_err}")
+
 
             data = resp.json()
             candidates = data.get("candidates", [])

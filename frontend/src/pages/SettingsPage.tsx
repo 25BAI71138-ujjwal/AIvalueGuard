@@ -10,7 +10,9 @@ import {
   Save,
   HelpCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  Flame,
+  Lock
 } from 'lucide-react';
 import { Badge } from '../components/Badge';
 import { api } from '../api/client';
@@ -53,7 +55,6 @@ export const SettingsPage: React.FC = () => {
       const res = await api.updateSetting(`${provider}_api_key`, value);
       setToast(res.message);
       await loadSettings();
-      // Clear local input after save for safety
       if (provider === 'openai') setOpenaiKey('');
       if (provider === 'anthropic') setAnthropicKey('');
       if (provider === 'gemini') setGeminiKey('');
@@ -89,40 +90,42 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto text-left">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Platform Settings & Security</h2>
-        <p className="text-xs text-slate-500 mt-0.5">
+        <h2 className="text-xl font-heading tracking-wide uppercase font-bold text-white flex items-center gap-2">
+          Platform Settings & Security
+        </h2>
+        <p className="text-xs text-slate-400 mt-0.5">
           Provider credentials, default baseline benchmarks, cache TTL, and execution mode
         </p>
       </div>
 
       {toast && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800 flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3 text-xs text-emerald-300 flex items-center gap-2 font-mono">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
           <span>{toast}</span>
         </div>
       )}
 
       {/* Demo Mode Toggle Card */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
-        <div className="flex items-center justify-between">
+      <div className="rounded-xl border border-obsidian-border bg-obsidian-card p-5 shadow-lg shadow-black/20 space-y-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-amber-500" /> Hackathon Demo Mode vs Live Provider Mode
+            <h3 className="text-sm font-semibold text-white flex items-center gap-2 font-mono">
+              <Sparkles className="h-4 w-4 text-cyan-400" /> Hackathon Demo Mode vs Live Provider Mode
             </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-xl">
-              In <strong>Demo Mode</strong>, AIValueGuard serves deterministic responses and simulated token metrics with 0 API keys required. Switch to <strong>Live Provider Mode</strong> when you enter API keys below to make real LLM provider requests.
+            <p className="text-xs text-slate-400 mt-1 max-w-xl">
+              In <strong>Demo Mode</strong>, Portkey Gateway serves deterministic responses and simulated token metrics with 0 API keys required. Switch to <strong>Live Provider Mode</strong> when you enter API keys below to make real LLM provider requests.
             </p>
           </div>
 
           <button
             onClick={handleToggleDemo}
-            className={`px-4 py-2 rounded-lg font-semibold text-xs border shadow-sm transition ${
+            className={`px-4 py-2 rounded-xl font-semibold text-xs border shadow-sm transition font-mono whitespace-nowrap ${
               settings?.demo_mode
-                ? 'bg-amber-100/70 border-amber-300 text-amber-900 hover:bg-amber-200'
-                : 'bg-emerald-100/70 border-emerald-300 text-emerald-900 hover:bg-emerald-200'
+                ? 'bg-amber-950/40 border-amber-500/40 text-amber-300 hover:bg-amber-900/50'
+                : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
             }`}
           >
             {settings?.demo_mode ? 'Demo Mode Active' : 'Live Mode Active'}
@@ -131,21 +134,21 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Provider API Keys Configuration */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-        <div className="border-b border-slate-100 pb-3">
-          <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-            <Key className="h-4 w-4 text-brand-600" /> LLM Provider API Keys
+      <div className="rounded-xl border border-obsidian-border bg-obsidian-card p-5 shadow-lg shadow-black/20 space-y-4">
+        <div className="border-b border-obsidian-border pb-3">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 font-mono">
+            <Key className="h-4 w-4 text-cyan-400" /> LLM Provider API Keys
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Keys are stored securely on the backend environment. They are never exposed to browser storage, logs, or JavaScript.
+          <p className="text-xs text-slate-400 mt-0.5">
+            Keys are encrypted on the backend environment. They are never exposed to browser storage, logs, or client JavaScript.
           </p>
         </div>
 
-        <div className="space-y-4 text-xs">
+        <div className="space-y-4 text-xs font-mono">
           {/* OpenAI */}
-          <div className="border border-slate-100 rounded-lg p-3 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="border border-obsidian-border rounded-xl p-3.5 bg-obsidian-850 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="min-w-36">
-              <div className="font-semibold text-slate-800 flex items-center gap-2">
+              <div className="font-semibold text-white flex items-center gap-2">
                 OpenAI
                 {settings?.configured_api_keys.openai ? (
                   <Badge variant="success">Configured</Badge>
@@ -162,19 +165,19 @@ export const SettingsPage: React.FC = () => {
                 value={openaiKey}
                 onChange={(e) => setOpenaiKey(e.target.value)}
                 placeholder="sk-proj-..."
-                className="flex-1 rounded-lg border border-slate-200 bg-white p-2 font-mono text-xs text-slate-800"
+                className="flex-1 rounded-lg border border-obsidian-border bg-black/50 p-2 text-xs text-white placeholder-slate-600 focus:border-cyan-500 outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowKeys({ ...showKeys, openai: !showKeys['openai'] })}
-                className="p-2 border border-slate-200 bg-white rounded-lg text-slate-500"
+                className="p-2 border border-obsidian-border bg-black/30 rounded-lg text-slate-400 hover:text-white"
               >
                 {showKeys['openai'] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
               <button
                 onClick={() => handleSaveKey('openai', openaiKey)}
                 disabled={savingKey === 'openai' || !openaiKey.trim()}
-                className="bg-brand-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50"
+                className="bg-cyan-500 text-black px-3.5 py-1.5 rounded-lg font-bold hover:bg-cyan-400 disabled:opacity-50 transition"
               >
                 Save
               </button>
@@ -182,9 +185,9 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Anthropic */}
-          <div className="border border-slate-100 rounded-lg p-3 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="border border-obsidian-border rounded-xl p-3.5 bg-obsidian-850 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="min-w-36">
-              <div className="font-semibold text-slate-800 flex items-center gap-2">
+              <div className="font-semibold text-white flex items-center gap-2">
                 Anthropic
                 {settings?.configured_api_keys.anthropic ? (
                   <Badge variant="success">Configured</Badge>
@@ -201,19 +204,19 @@ export const SettingsPage: React.FC = () => {
                 value={anthropicKey}
                 onChange={(e) => setAnthropicKey(e.target.value)}
                 placeholder="sk-ant-..."
-                className="flex-1 rounded-lg border border-slate-200 bg-white p-2 font-mono text-xs text-slate-800"
+                className="flex-1 rounded-lg border border-obsidian-border bg-black/50 p-2 text-xs text-white placeholder-slate-600 focus:border-cyan-500 outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowKeys({ ...showKeys, anthropic: !showKeys['anthropic'] })}
-                className="p-2 border border-slate-200 bg-white rounded-lg text-slate-500"
+                className="p-2 border border-obsidian-border bg-black/30 rounded-lg text-slate-400 hover:text-white"
               >
                 {showKeys['anthropic'] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
               <button
                 onClick={() => handleSaveKey('anthropic', anthropicKey)}
                 disabled={savingKey === 'anthropic' || !anthropicKey.trim()}
-                className="bg-brand-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50"
+                className="bg-cyan-500 text-black px-3.5 py-1.5 rounded-lg font-bold hover:bg-cyan-400 disabled:opacity-50 transition"
               >
                 Save
               </button>
@@ -221,9 +224,9 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Google Gemini */}
-          <div className="border border-slate-100 rounded-lg p-3 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="border border-obsidian-border rounded-xl p-3.5 bg-obsidian-850 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="min-w-36">
-              <div className="font-semibold text-slate-800 flex items-center gap-2">
+              <div className="font-semibold text-white flex items-center gap-2">
                 Google Gemini
                 {settings?.configured_api_keys.gemini ? (
                   <Badge variant="success">Configured</Badge>
@@ -240,19 +243,19 @@ export const SettingsPage: React.FC = () => {
                 value={geminiKey}
                 onChange={(e) => setGeminiKey(e.target.value)}
                 placeholder="AIzaSy..."
-                className="flex-1 rounded-lg border border-slate-200 bg-white p-2 font-mono text-xs text-slate-800"
+                className="flex-1 rounded-lg border border-obsidian-border bg-black/50 p-2 text-xs text-white placeholder-slate-600 focus:border-cyan-500 outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowKeys({ ...showKeys, gemini: !showKeys['gemini'] })}
-                className="p-2 border border-slate-200 bg-white rounded-lg text-slate-500"
+                className="p-2 border border-obsidian-border bg-black/30 rounded-lg text-slate-400 hover:text-white"
               >
                 {showKeys['gemini'] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
               <button
                 onClick={() => handleSaveKey('gemini', geminiKey)}
                 disabled={savingKey === 'gemini' || !geminiKey.trim()}
-                className="bg-brand-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50"
+                className="bg-cyan-500 text-black px-3.5 py-1.5 rounded-lg font-bold hover:bg-cyan-400 disabled:opacity-50 transition"
               >
                 Save
               </button>
@@ -260,9 +263,9 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Groq */}
-          <div className="border border-slate-100 rounded-lg p-3 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="border border-obsidian-border rounded-xl p-3.5 bg-obsidian-850 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="min-w-36">
-              <div className="font-semibold text-slate-800 flex items-center gap-2">
+              <div className="font-semibold text-white flex items-center gap-2">
                 Groq
                 {settings?.configured_api_keys.groq ? (
                   <Badge variant="success">Configured</Badge>
@@ -279,19 +282,19 @@ export const SettingsPage: React.FC = () => {
                 value={groqKey}
                 onChange={(e) => setGroqKey(e.target.value)}
                 placeholder="gsk_..."
-                className="flex-1 rounded-lg border border-slate-200 bg-white p-2 font-mono text-xs text-slate-800"
+                className="flex-1 rounded-lg border border-obsidian-border bg-black/50 p-2 text-xs text-white placeholder-slate-600 focus:border-cyan-500 outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowKeys({ ...showKeys, groq: !showKeys['groq'] })}
-                className="p-2 border border-slate-200 bg-white rounded-lg text-slate-500"
+                className="p-2 border border-obsidian-border bg-black/30 rounded-lg text-slate-400 hover:text-white"
               >
                 {showKeys['groq'] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
               <button
                 onClick={() => handleSaveKey('groq', groqKey)}
                 disabled={savingKey === 'groq' || !groqKey.trim()}
-                className="bg-brand-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50"
+                className="bg-cyan-500 text-black px-3.5 py-1.5 rounded-lg font-bold hover:bg-cyan-400 disabled:opacity-50 transition"
               >
                 Save
               </button>
@@ -301,18 +304,18 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Gateway Invariants & Engine Parameters */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-          <Sliders className="h-4 w-4 text-brand-600" /> Gateway Invariants & Routing Parameters
+      <div className="rounded-xl border border-obsidian-border bg-obsidian-card p-5 shadow-lg shadow-black/20 space-y-4">
+        <h3 className="text-sm font-semibold text-white flex items-center gap-2 font-mono">
+          <Sliders className="h-4 w-4 text-cyan-400" /> Gateway Invariants & Routing Parameters
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Default Baseline Benchmark Model</label>
+            <label className="block font-semibold text-slate-300 mb-1">Default Baseline Benchmark Model</label>
             <select
               value={settings?.default_baseline_model || 'gpt-4o'}
               onChange={(e) => handleUpdateBaseline(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 p-2 font-mono text-slate-800"
+              className="w-full rounded-lg border border-obsidian-border bg-obsidian-850 p-2 text-white focus:border-cyan-500 outline-none"
             >
               <option value="gpt-4o">gpt-4o ($2.50 / $10.00)</option>
               <option value="claude-3-5-sonnet">claude-3-5-sonnet ($3.00 / $15.00)</option>
@@ -324,9 +327,9 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Cache Storage Backend</label>
-            <div className="p-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-slate-800">
-              {settings?.cache_backend}
+            <label className="block font-semibold text-slate-300 mb-1">Cache Storage Backend</label>
+            <div className="p-2 bg-obsidian-850 rounded-lg border border-obsidian-border text-white">
+              {settings?.cache_backend || 'SQLite / Memory LRU'}
             </div>
             <span className="text-[11px] text-slate-400 mt-1 block">
               Configured via REDIS_URL in environment.

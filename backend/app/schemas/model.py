@@ -41,3 +41,18 @@ class ModelConfigUpdate(BaseModel):
 class ModelConfigRead(ModelConfigBase):
     updated_at: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
+
+class SimulateRouteRequest(BaseModel):
+    prompt_tokens: int = 300
+    expected_completion_tokens: int = 500
+    latency_budget_ms: Optional[int] = None
+    required_capabilities: Optional[list[str]] = None
+    min_quality_score: float = 0.70
+    baseline_model_id: str = "gpt-4o"
+    forced_model_id: Optional[str] = None
+    prompt_text: Optional[str] = None
+
+class SimulateRouteResponse(BaseModel):
+    selected_model: ModelConfigRead
+    decision: dict
+    fallbacks: list[str]

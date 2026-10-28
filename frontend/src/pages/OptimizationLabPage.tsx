@@ -11,7 +11,9 @@ import {
   TrendingDown,
   Clock,
   Database,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Flame,
+  Zap
 } from 'lucide-react';
 import { StatCard } from '../components/StatCard';
 import { Badge } from '../components/Badge';
@@ -116,12 +118,14 @@ export const OptimizationLabPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto text-left">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Optimization Laboratory</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-xl font-heading tracking-wide uppercase font-bold text-white flex items-center gap-2">
+            Optimization & Evaluation Lab
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">
             Run deterministic side-by-side experiment suites on production datasets to mathematically evaluate cost vs quality tradeoffs
           </p>
         </div>
@@ -131,15 +135,15 @@ export const OptimizationLabPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={exportResultsCSV}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                className="flex items-center gap-1.5 rounded-lg border border-obsidian-border bg-obsidian-card px-3 py-1.5 text-xs font-mono font-medium text-slate-300 hover:text-white transition shadow-sm"
               >
-                <FileSpreadsheet className="h-3.5 w-3.5" /> Export CSV
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-400" /> Export CSV
               </button>
               <button
                 onClick={exportResultsJSON}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                className="flex items-center gap-1.5 rounded-lg border border-obsidian-border bg-obsidian-card px-3 py-1.5 text-xs font-mono font-medium text-slate-300 hover:text-white transition shadow-sm"
               >
-                <Download className="h-3.5 w-3.5" /> Export JSON
+                <Download className="h-3.5 w-3.5 text-cyan-400" /> Export JSON
               </button>
             </div>
           )}
@@ -147,32 +151,32 @@ export const OptimizationLabPage: React.FC = () => {
       </div>
 
       {/* New Experiment Runner Config Card */}
-      <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-5 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="rounded-xl border border-cyan-500/30 bg-obsidian-card p-5 shadow-lg shadow-black/20 space-y-4">
+        <div className="flex items-center justify-between border-b border-obsidian-border pb-3">
           <div className="flex items-center gap-2">
-            <FlaskConical className="h-4 w-4 text-brand-600" />
-            <h3 className="text-sm font-bold text-slate-900">Launch New Comparative Experiment</h3>
+            <FlaskConical className="h-4 w-4 text-cyan-400" />
+            <h3 className="text-sm font-bold text-white font-mono">Launch New Comparative Experiment Suite</h3>
           </div>
-          <span className="text-xs font-mono text-slate-500">A/B Strategy Evaluation Suite</span>
+          <span className="text-xs font-mono text-slate-400">A/B Strategy Evaluation Matrix</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs font-mono">
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Experiment Label</label>
+            <label className="block font-semibold text-slate-300 mb-1">Experiment Label</label>
             <input
               type="text"
               value={expName}
               onChange={(e) => setExpName(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white p-2 text-slate-800"
+              className="w-full rounded-lg border border-obsidian-border bg-obsidian-850 p-2 text-white focus:border-cyan-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Benchmark Dataset</label>
+            <label className="block font-semibold text-slate-300 mb-1">Benchmark Dataset</label>
             <select
               value={datasetName}
               onChange={(e) => setDatasetName(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white p-2 text-slate-800"
+              className="w-full rounded-lg border border-obsidian-border bg-obsidian-850 p-2 text-white focus:border-cyan-500 outline-none"
             >
               <option value="Support & Code Benchmark">Support & Code Benchmark (10 cases)</option>
               <option value="Customer Sentiment Batch">Customer Sentiment Batch (10 cases)</option>
@@ -181,11 +185,11 @@ export const OptimizationLabPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Baseline Model</label>
+            <label className="block font-semibold text-slate-300 mb-1">Baseline Model</label>
             <select
               value={baselineModel}
               onChange={(e) => setBaselineModel(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white p-2 font-mono text-slate-800"
+              className="w-full rounded-lg border border-obsidian-border bg-obsidian-850 p-2 text-white focus:border-cyan-500 outline-none font-mono"
             >
               <option value="gpt-4o">OpenAI GPT-4o ($2.50 / $10.00)</option>
               <option value="claude-3-5-sonnet">Claude 3.5 Sonnet ($3.00 / $15.00)</option>
@@ -194,11 +198,11 @@ export const OptimizationLabPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Optimization Policy</label>
+            <label className="block font-semibold text-slate-300 mb-1">Optimization Policy</label>
             <select
               value={optimizedPolicy}
               onChange={(e) => setOptimizedPolicy(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white p-2 text-slate-800"
+              className="w-full rounded-lg border border-obsidian-border bg-obsidian-850 p-2 text-white focus:border-cyan-500 outline-none"
             >
               <option value="balanced_cost_quality">Balanced Cost & Quality (Default)</option>
               <option value="aggressive_cost">Aggressive Cost Minimization</option>
@@ -207,14 +211,14 @@ export const OptimizationLabPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Sample Size: {sampleSize}</label>
+            <label className="block font-semibold text-slate-300 mb-1">Sample Size: {sampleSize}</label>
             <input
               type="range"
               min="3"
               max="10"
               value={sampleSize}
               onChange={(e) => setSampleSize(Number(e.target.value))}
-              className="w-full mt-2"
+              className="w-full mt-2 accent-cyan-400"
             />
           </div>
         </div>
@@ -223,7 +227,7 @@ export const OptimizationLabPage: React.FC = () => {
           <button
             onClick={handleRunExperiment}
             disabled={running}
-            className="flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-700 disabled:opacity-50 transition"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-violet-500 hover:opacity-95 px-5 py-2 text-xs font-extrabold text-black shadow-md shadow-cyan-500/25 disabled:opacity-50 transition"
           >
             <Play className={`h-3.5 w-3.5 ${running ? 'animate-spin' : ''}`} />
             {running ? `Running Suite (${sampleSize} test cases)...` : 'Execute Experiment'}
@@ -268,11 +272,11 @@ export const OptimizationLabPage: React.FC = () => {
           </div>
 
           {/* Test Case Inspection Table */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-            <div className="border-b border-slate-100 p-4 flex items-center justify-between">
+          <div className="rounded-xl border border-obsidian-border bg-obsidian-card shadow-lg shadow-black/20 overflow-hidden">
+            <div className="border-b border-obsidian-border p-4 flex items-center justify-between bg-obsidian-850/50">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">{activeExperiment.name}</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="text-sm font-semibold text-white font-mono">{activeExperiment.name}</h3>
+                <p className="text-xs text-slate-400">
                   Dataset: {activeExperiment.dataset_name} | Baseline: {activeExperiment.baseline_model}
                 </p>
               </div>
@@ -280,8 +284,8 @@ export const OptimizationLabPage: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+              <table className="w-full text-left text-xs font-mono">
+                <thead className="bg-obsidian-850/80 border-b border-obsidian-border text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                   <tr>
                     <th className="py-3 px-4">Case ID</th>
                     <th className="py-3 px-4">Category</th>
@@ -294,35 +298,35 @@ export const OptimizationLabPage: React.FC = () => {
                     <th className="py-3 px-4 text-center">Quality</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-mono">
+                <tbody className="divide-y divide-obsidian-border/50">
                   {activeExperiment.items.map((item) => (
-                    <tr key={item.case_id} className="hover:bg-slate-50/70 transition font-sans">
-                      <td className="py-3 px-4 font-mono font-medium text-slate-900">{item.case_id}</td>
-                      <td className="py-3 px-4 text-slate-600 font-medium">{item.category}</td>
-                      <td className="py-3 px-4 text-slate-700 max-w-xs truncate" title={item.prompt_preview}>
+                    <tr key={item.case_id} className="hover:bg-white/[0.02] transition">
+                      <td className="py-3 px-4 font-mono font-medium text-cyan-400">{item.case_id}</td>
+                      <td className="py-3 px-4 text-slate-300 font-medium">{item.category}</td>
+                      <td className="py-3 px-4 text-slate-400 max-w-xs truncate" title={item.prompt_preview}>
                         {item.prompt_preview}
                       </td>
                       <td className="py-3 px-4">
-                        <span className="font-mono font-medium text-indigo-700">{item.optimized_model}</span>
-                        {item.is_cached && <span className="ml-1 text-[10px] text-brand-600 font-bold">(Cached)</span>}
+                        <span className="font-mono font-medium text-white">{item.optimized_model}</span>
+                        {item.is_cached && <span className="ml-1 text-[10px] text-cyan-400 font-bold">(Cached)</span>}
                       </td>
-                      <td className="py-3 px-4 text-right font-mono text-slate-600">
+                      <td className="py-3 px-4 text-right font-mono text-slate-400">
                         ${item.baseline_cost.toFixed(5)}
                       </td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-emerald-700">
+                      <td className="py-3 px-4 text-right font-mono font-bold text-emerald-400">
                         ${item.optimized_cost.toFixed(5)}
                       </td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-emerald-600">
+                      <td className="py-3 px-4 text-right font-mono font-bold text-emerald-400">
                         {item.savings_pct}%
                       </td>
-                      <td className="py-3 px-4 text-right font-mono text-slate-700">
+                      <td className="py-3 px-4 text-right font-mono text-cyan-400">
                         {item.baseline_latency_ms}ms → {item.optimized_latency_ms}ms
                       </td>
                       <td className="py-3 px-4 text-center">
                         {item.optimized_passed ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 inline" />
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400 inline" />
                         ) : (
-                          <XCircle className="h-4 w-4 text-rose-500 inline" />
+                          <XCircle className="h-4 w-4 text-rose-400 inline" />
                         )}
                       </td>
                     </tr>

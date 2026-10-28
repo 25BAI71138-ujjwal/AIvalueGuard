@@ -102,6 +102,23 @@ export const api = {
     return handleResponse<ModelConfig>(res);
   },
 
+  async simulateRoute(params: {
+    prompt_tokens?: number;
+    expected_completion_tokens?: number;
+    latency_budget_ms?: number;
+    required_capabilities?: string[];
+    min_quality_score?: number;
+    baseline_model_id?: string;
+    prompt_text?: string;
+  }): Promise<{ selected_model: ModelConfig; decision: { selected_model: string; reason: string; estimated_cost_ratio: number; latency_estimate_ms: number }; fallbacks: string[] }> {
+    const res = await fetch(`${BASE_URL}/models/simulate-route`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+    return handleResponse(res);
+  },
+
   // Cache
   async getCacheStats(workspaceId = 'ws_default'): Promise<CacheStats> {
     const res = await fetch(`${BASE_URL}/cache/stats?workspace_id=${workspaceId}`);
@@ -196,5 +213,54 @@ export const api = {
       body: JSON.stringify({ key, value })
     });
     return handleResponse<{ status: string; message: string }>(res);
+  },
+
+  // AI Task Execution & 3D Live Token Tracker
+  async executeTask(data: {
+    prompt: string;
+    model?: string;
+    task_name?: string;
+    project_name?: string;
+    session_id?: string;
+    temperature?: number;
+    max_tokens?: number;
+    system_instruction?: string;
+    workspace_id?: string;
+  }): Promise<any> {
+    const res = await fetch(`${BASE_URL}/gateway/task-execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return handleResponse<any>(res);
+  },
+
+  async getTaskAnalytics(workspaceId = 'ws_default'): Promise<any> {
+    const res = await fetch(`${BASE_URL}/analytics/tasks?workspace_id=${workspaceId}`);
+    return handleResponse<any>(res);
+  },
+
+  async getBudget(workspaceId = 'ws_default'): Promise<any> {
+    const res = await fetch(`${BASE_URL}/budget?workspace_id=${workspaceId}`);
+    return handleResponse<any>(res);
+  },
+
+  async updateBudget(data: any, workspaceId = 'ws_default'): Promise<any> {
+    const res = await fetch(`${BASE_URL}/budget?workspace_id=${workspaceId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return handleResponse<any>(res);
+  },
+
+  async getWasteAndOptimizations(workspaceId = 'ws_default'): Promise<any> {
+    const res = await fetch(`${BASE_URL}/analytics/waste-and-optimizations?workspace_id=${workspaceId}`);
+    return handleResponse<any>(res);
+  },
+
+  getExportUrl(format = 'csv', workspaceId = 'ws_default'): string {
+    return `${BASE_URL}/requests/export?format=${format}&workspace_id=${workspaceId}`;
   }
 };
+

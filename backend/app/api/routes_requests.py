@@ -69,11 +69,96 @@ async def list_requests(
                 "quality_passed": r.quality_passed,
                 "quality_checks_run": r.quality_checks_run,
                 "status": r.status,
-                "is_demo": r.is_demo
+                "is_demo": r.is_demo,
+                "task_name": r.task_name or "General Task",
+                "project_name": r.project_name or "Default Project",
+                "session_id": r.session_id
             }
             for r in items
         ]
     }
+
+@router.get("/export")
+async def export_requests(
+    format: str = Query("csv", description="csv or json"),
+    workspace_id: str = Query("ws_default"),
+    limit: int = Query(500, ge=1, le=2000),
+    db: AsyncSession = Depends(get_db)
+):
+    import io
+    import csv
+    import json
+    from fastapi.responses import Response
+
+    stmt = select(RequestLog).where(RequestLog.workspace_id == workspace_id).order_by(desc(RequestLog.created_at)).limit(limit)
+    res = await db.execute(stmt)
+    records = res.scalars().all()
+
+    if format.lower() == "json":
+        data = [
+            {
+                "id": r.id,
+                "timestamp": r.created_at.isoformat(),
+                "task_name": r.task_name,
+                "project_name": r.project_name,
+                "session_id": r.session_id,
+                "model_selected": r.model_selected,
+                "baseline_model": r.baseline_model,
+                "provider": r.provider,
+                "prompt_tokens": r.prompt_tokens,
+                "completion_tokens": r.completion_tokens,
+                "total_tokens": r.total_tokens,
+                "actual_cost_usd": r.actual_cost_usd,
+                "baseline_cost_usd": r.baseline_cost_usd,
+                "saved_cost_usd": r.saved_cost_usd,
+                "latency_ms": r.latency_ms,
+                "is_cached": r.is_cached,
+                "status": r.status,
+                "is_demo": r.is_demo
+            }
+            for r in records
+        ]
+        json_str = json.dumps(data, indent=2)
+        return Response(
+            content=json_str,
+            media_type="application/json",
+            headers={"Content-Disposition": "attachment; filename=aivalueguard_tokens_export.json"}
+        )
+    else: # csv
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow([
+            "ID", "Timestamp", "Task", "Project", "Session", "Model", "Baseline",
+            "Provider", "Prompt Tokens", "Completion Tokens", "Total Tokens",
+            "Cost USD", "Baseline Cost USD", "Saved USD", "Latency (ms)", "Cached", "Status", "Demo Mode"
+        ])
+        for r in records:
+            writer.writerow([
+                r.id,
+                r.created_at.isoformat(),
+                r.task_name or "General Task",
+                r.project_name or "Default Project",
+                r.session_id or "",
+                r.model_selected,
+                r.baseline_model,
+                r.provider,
+                r.prompt_tokens,
+                r.completion_tokens,
+                r.total_tokens,
+                r.actual_cost_usd,
+                r.baseline_cost_usd,
+                r.saved_cost_usd,
+                r.latency_ms,
+                r.is_cached,
+                r.status,
+                r.is_demo
+            ])
+        csv_bytes = output.getvalue()
+        return Response(
+            content=csv_bytes,
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=aivalueguard_tokens_export.csv"}
+        )
 
 @router.get("/{request_id}")
 async def get_request_detail(
@@ -83,6 +168,7 @@ async def get_request_detail(
     r = await db.get(RequestLog, request_id)
     if not r:
         raise HTTPException(status_code=404, detail="Request trace not found")
+
 
     return {
         "id": r.id,

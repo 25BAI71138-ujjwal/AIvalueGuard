@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Float, DateTime, Text
-from backend.app.database import Base
+from backend.app.database import Base, utc_now
 
 class Experiment(Base):
     __tablename__ = "experiments"
@@ -27,4 +27,4 @@ class Experiment(Base):
     
     status = Column(String(32), default="completed") # running, completed, cancelled, failed
     results_summary_json = Column(Text, default="{}")
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)

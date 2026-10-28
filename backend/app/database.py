@@ -21,6 +21,11 @@ AsyncSessionLocal = async_sessionmaker(
     autoflush=False
 )
 
+import datetime
+
+def utc_now() -> datetime.datetime:
+    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
 Base = declarative_base()
 
 async def get_db():

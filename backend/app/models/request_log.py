@@ -1,13 +1,13 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, Text
-from backend.app.database import Base
+from backend.app.database import Base, utc_now
 
 class RequestLog(Base):
     __tablename__ = "request_logs"
 
     id = Column(String(64), primary_key=True) # e.g. "req_01j7xyz..."
     workspace_id = Column(String(64), default="ws_default", index=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utc_now, index=True)
     
     # Prompt & Request metadata
     prompt_preview = Column(String(512), nullable=False)
@@ -50,3 +50,8 @@ class RequestLog(Base):
     status = Column(String(32), default="success", index=True) # success, cached, fallback_success, quality_failed, error
     error_message = Column(Text, nullable=True)
     is_demo = Column(Boolean, default=True, index=True) # Labeled Demo vs Real
+    
+    # Task-Level Tracking & Attribution
+    task_name = Column(String(128), default="General Task", nullable=True, index=True)
+    project_name = Column(String(128), default="Default Project", nullable=True, index=True)
+    session_id = Column(String(128), nullable=True, index=True)

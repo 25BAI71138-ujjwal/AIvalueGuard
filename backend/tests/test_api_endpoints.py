@@ -70,3 +70,44 @@ async def test_playground_compare_endpoint():
         assert "optimized" in data
         assert "comparison" in data
         assert data["comparison"]["savings_percentage"] >= 0.0
+
+@pytest.mark.asyncio
+async def test_simulate_route_endpoint():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        payload = {
+            "prompt_tokens": 400,
+            "latency_budget_ms": 350,
+            "required_capabilities": ["json"],
+            "prompt_text": "Write a python script to process records"
+        }
+        resp = await client.post("/api/models/simulate-route", json=payload)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "selected_model" in data
+        assert "decision" in data
+        assert "fallbacks" in data
+        assert data["selected_model"]["supports_json"] is True
+        assert data["selected_model"]["latency_estimate_ms"] <= 350
+
+@pytest.mark.asyncio
+async def test_gateway_cache_repeat_hit_endpoint():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        payload = {
+            "prompt": "Deterministic test query for cache hit verification",
+            "model": "auto",
+            "optimize": True,
+            "allow_cache": True
+        }
+        # First call: executes & caches
+        r1 = await client.post("/api/gateway/chat", json=payload)
+        assert r1.status_code == 200
+        
+        # Second call: must hit cache
+        r2 = await client.post("/api/gateway/chat", json=payload)
+        assert r2.status_code == 200
+        data2 = r2.json()
+        assert data2["is_cached"] is True
+        assert data2["cache_type"] == "exact"
+        assert "(Cached)" in data2["model_used"]

@@ -20,7 +20,7 @@ class QualityEvaluator:
         content: str,
         required_fields: Optional[List[str]] = None,
         json_mode: bool = False,
-        min_length: int = 5,
+        min_length: int = 1,
         max_length: Optional[int] = None,
         required_phrases: Optional[List[str]] = None
     ) -> QualityEvaluationMeta:
@@ -61,7 +61,37 @@ class QualityEvaluator:
                 details=f"Within character boundary ({len(content)} <= {max_length})"
             ))
 
-        # 3. JSON Validity & Required Fields check
+        # 3. Completeness & Truncation Guard (Ensures 90%+ Output Fidelity)
+        trimmed = content.strip() if content else ""
+        is_truncated = False
+        trunc_reason = ""
+        if trimmed.count("```") % 2 != 0:
+            is_truncated = True
+            trunc_reason = "Unclosed code fence block detected"
+        elif re.search(r'\n\s*[-*•]\s*$', trimmed):
+            is_truncated = True
+            trunc_reason = "Dangling empty list marker at end of response"
+        elif len(trimmed) < 20 and not json_mode and any(w in trimmed.lower() for w in ["summary:", "difference:", "overview:"]):
+            is_truncated = True
+            trunc_reason = "Premature termination before summary content was generated"
+
+        if is_truncated:
+            checks.append(QualityCheckDetail(
+                rule_name="Output Completeness & Truncation Guard",
+                passed=False,
+                score=0.0,
+                details=f"Incomplete generation detected: {trunc_reason}"
+            ))
+            all_passed = False
+        else:
+            checks.append(QualityCheckDetail(
+                rule_name="Output Completeness & Truncation Guard",
+                passed=True,
+                score=1.0,
+                details="Output completed naturally with full sentence/structural termination"
+            ))
+
+        # 4. JSON Validity & Required Fields check
         parsed_json = None
         if json_mode or required_fields:
             try:

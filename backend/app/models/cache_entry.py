@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, Text
-from backend.app.database import Base
+from backend.app.database import Base, utc_now
 
 class CacheEntry(Base):
     __tablename__ = "cache_entries"
@@ -15,7 +15,7 @@ class CacheEntry(Base):
     completion_tokens = Column(Integer, default=0)
     cost_saved_per_hit = Column(Float, default=0.0)
     hit_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    last_hit_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
+    last_hit_at = Column(DateTime, default=utc_now)
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True, index=True)

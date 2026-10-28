@@ -50,12 +50,25 @@ class CacheService:
         cache_key: str,
         workspace_id: str
     ) -> Optional[Dict[str, Any]]:
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
+        def _is_corrupt_entry(txt: str) -> bool:
+            clean = (txt or "").strip()
+            if not clean:
+                return True
+            # Only consider corrupt if unclosed code fence or standalone punctuation artifact
+            if clean.count("```") % 2 != 0:
+                return True
+            if clean in [".", ",", "-", ":", "..."]:
+                return True
+            return False
 
         # 1. Check in-memory cache first
         if cache_key in cls._memory_cache:
             entry = cls._memory_cache[cache_key]
-            if entry["workspace_id"] == workspace_id and entry["expires_at"] > now and entry["is_active"]:
+            if _is_corrupt_entry(entry.get("response_content", "")):
+                del cls._memory_cache[cache_key]
+            elif entry["workspace_id"] == workspace_id and entry["expires_at"] > now and entry["is_active"]:
                 cls._hits += 1
                 entry["hit_count"] += 1
                 entry["last_hit_at"] = now
@@ -72,6 +85,12 @@ class CacheService:
         )
         db_entry = result.scalar_one_or_none()
         if db_entry:
+            if _is_corrupt_entry(db_entry.response_content):
+                await db.delete(db_entry)
+                await db.commit()
+                cls._misses += 1
+                return None
+
             cls._hits += 1
             db_entry.hit_count += 1
             db_entry.last_hit_at = now
@@ -110,7 +129,7 @@ class CacheService:
         ttl_seconds: Optional[int] = None
     ) -> None:
         ttl = ttl_seconds or settings.EXACT_CACHE_TTL_SECONDS
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         expires_at = now + datetime.timedelta(seconds=ttl)
         prompt_hash = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
 
@@ -141,6 +160,10 @@ class CacheService:
             existing.expires_at = expires_at
             existing.is_active = True
             existing.cost_saved_per_hit = cost_saved_per_hit
+            existing.last_hit_at = now
+            existing.prompt_tokens = prompt_tokens
+            existing.completion_tokens = completion_tokens
+            existing.model = model
         else:
             new_entry = CacheEntry(**entry_data)
             db.add(new_entry)
@@ -170,18 +193,22 @@ class CacheService:
             # Evict from memory cache
             keys_to_delete = []
             for k, v in cls._memory_cache.items():
-                if (not workspace_id or v["workspace_id"] == workspace_id) and (not model or v["model"] == model):
+                if (not workspace_id or v.get("workspace_id") == workspace_id) and (not model or v.get("model") == model):
                     keys_to_delete.append(k)
             for k in keys_to_delete:
                 del cls._memory_cache[k]
 
-        stmt = update(CacheEntry).where(*conditions).values(is_active=False)
+        stmt = update(CacheEntry)
+        if conditions:
+            stmt = stmt.where(*conditions)
+        stmt = stmt.values(is_active=False)
         result = await db.execute(stmt)
         await db.commit()
         return result.rowcount
 
     @classmethod
     async def get_stats(cls, db: AsyncSession, workspace_id: str = "ws_default") -> Dict[str, Any]:
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         total_q = await db.execute(select(func.count(CacheEntry.cache_key)).where(CacheEntry.workspace_id == workspace_id))
         total_entries = total_q.scalar() or 0
 
@@ -189,7 +216,7 @@ class CacheService:
             select(func.count(CacheEntry.cache_key)).where(
                 CacheEntry.workspace_id == workspace_id,
                 CacheEntry.is_active == True,
-                CacheEntry.expires_at > datetime.datetime.utcnow()
+                CacheEntry.expires_at > now
             )
         )
         active_entries = active_q.scalar() or 0

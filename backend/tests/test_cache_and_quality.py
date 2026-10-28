@@ -37,3 +37,35 @@ async def test_quality_evaluator_json_validation():
         refusal_content = "I apologize, but as an AI language model I cannot assist with this."
         res_refusal = await QualityEvaluator.evaluate(session, refusal_content)
         assert res_refusal.passed is False
+
+@pytest.mark.asyncio
+async def test_short_completion_caching_and_invalidation():
+    async with AsyncSessionLocal() as session:
+        cache_key = CacheService.generate_fingerprint("ws_test", "auto", "What is 2+2?", temperature=0.7)
+        
+        # Test storing short completion (under 80 characters)
+        await CacheService.set(
+            db=session,
+            cache_key=cache_key,
+            workspace_id="ws_test",
+            model="gemini-1.5-flash",
+            prompt="What is 2+2?",
+            response_content="The sum of 2 and 2 is 4.",
+            prompt_tokens=10,
+            completion_tokens=8,
+            cost_saved_per_hit=0.0005
+        )
+
+        # Retrieve and verify it hits and is not flagged as corrupt
+        retrieved = await CacheService.get(session, cache_key, "ws_test")
+        assert retrieved is not None
+        assert retrieved["response_content"] == "The sum of 2 and 2 is 4."
+        assert retrieved["hit_count"] >= 1
+
+        # Test invalidation
+        count = await CacheService.invalidate(session, cache_key=cache_key)
+        assert count >= 1
+
+        # Verify entry is now inactive
+        retrieved_after = await CacheService.get(session, cache_key, "ws_test")
+        assert retrieved_after is None

@@ -217,7 +217,7 @@ async def seed_initial_data(db: AsyncSession):
     # Check if demonstration request logs exist
     logs_count = (await db.execute(select(func.count(RequestLog.id)))).scalar() or 0
     if logs_count == 0:
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         for idx, (prompt, model, p_tokens, c_tokens, act_cost, base_cost, sav_pct, is_c, status) in enumerate(SAMPLE_PROMPTS):
             created = now - datetime.timedelta(hours=random.randint(1, 140))
             req_id = f"req_demo_{1000 + idx}"

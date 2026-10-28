@@ -4,6 +4,7 @@ from backend.app.models.cache_entry import CacheEntry
 from backend.app.models.evaluation_rule import EvaluationRule
 from backend.app.models.experiment import Experiment
 from backend.app.models.setting import AppSetting
+from backend.app.models.budget import BudgetConfig
 
 __all__ = [
     "ModelConfig",
@@ -11,5 +12,6 @@ __all__ = [
     "CacheEntry",
     "EvaluationRule",
     "Experiment",
-    "AppSetting"
+    "AppSetting",
+    "BudgetConfig"
 ]

@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime
-from backend.app.database import Base
+from backend.app.database import Base, utc_now
 
 class ModelConfig(Base):
     __tablename__ = "model_configs"
@@ -21,4 +21,4 @@ class ModelConfig(Base):
     is_enabled = Column(Boolean, default=True)
     is_default_baseline = Column(Boolean, default=False)
     pricing_source = Column(String(128), default="Official Provider Pricing 2026")
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)

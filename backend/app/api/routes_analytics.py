@@ -38,3 +38,20 @@ async def get_cost_analytics(
         },
         "pricing_basis": "Stored official per-1M token rates with actual token counts from provider completions"
     }
+
+@router.get("/tasks")
+async def get_task_analytics(
+    workspace_id: str = Query("ws_default"),
+    db: AsyncSession = Depends(get_db)
+):
+    from backend.app.services.task_tracking_service import TaskTrackingService
+    return await TaskTrackingService.get_task_analytics(db, workspace_id=workspace_id)
+
+@router.get("/waste-and-optimizations")
+async def get_waste_and_optimizations(
+    workspace_id: str = Query("ws_default"),
+    db: AsyncSession = Depends(get_db)
+):
+    from backend.app.services.task_tracking_service import TaskTrackingService
+    return await TaskTrackingService.detect_waste_and_optimizations(db, workspace_id=workspace_id)
+

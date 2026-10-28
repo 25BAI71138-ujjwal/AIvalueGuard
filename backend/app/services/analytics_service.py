@@ -21,7 +21,7 @@ class AnalyticsService:
         time_range: str = "7d"
     ) -> OverviewAnalyticsResponse:
         # Determine cutoff date
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         days_map = {"24h": 1, "7d": 7, "30d": 30, "90d": 90}
         days = days_map.get(time_range, 7)
         cutoff = now - datetime.timedelta(days=days)

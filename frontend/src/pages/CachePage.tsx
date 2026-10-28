@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   Info,
   Clock,
-  Zap
+  Zap,
+  Flame
 } from 'lucide-react';
 import { StatCard } from '../components/StatCard';
 import { Badge } from '../components/Badge';
@@ -68,12 +69,14 @@ export const CachePage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto text-left">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Safe Exact-Match Caching</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-xl font-heading tracking-wide uppercase font-bold text-white flex items-center gap-2">
+            Safe Exact & Semantic Caching
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">
             Cryptographic SHA-256 request fingerprinting with strict tenant isolation, freshness TTL, and instant invalidation
           </p>
         </div>
@@ -81,7 +84,7 @@ export const CachePage: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={loadCacheData}
-            className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 hover:text-slate-800 transition"
+            className="rounded-lg border border-obsidian-border bg-obsidian-card p-2 text-slate-400 hover:text-white transition shadow-sm"
             title="Refresh cache status"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -89,7 +92,7 @@ export const CachePage: React.FC = () => {
           <button
             onClick={handleInvalidateAll}
             disabled={invalidating}
-            className="flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100 transition shadow-xs"
+            className="flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-950/30 px-3.5 py-1.5 text-xs font-mono font-semibold text-rose-300 hover:bg-rose-900/40 transition shadow-sm"
           >
             <Trash2 className="h-3.5 w-3.5" />
             {invalidating ? 'Invalidating...' : 'Invalidate Workspace Cache'}
@@ -98,8 +101,8 @@ export const CachePage: React.FC = () => {
       </div>
 
       {toastMessage && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800 flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3 text-xs text-emerald-300 flex items-center gap-2 font-mono">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -138,27 +141,27 @@ export const CachePage: React.FC = () => {
       </div>
 
       {/* Safe Caching Rules Info Note */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 text-xs space-y-2">
-        <div className="flex items-center gap-2 text-slate-800 font-semibold">
-          <Info className="h-4 w-4 text-brand-600" />
-          <span>Safety & Isolation Invariants</span>
+      <div className="rounded-xl border border-obsidian-border bg-obsidian-card p-4 text-xs space-y-2 shadow-lg shadow-black/20">
+        <div className="flex items-center gap-2 text-white font-semibold font-mono">
+          <Info className="h-4 w-4 text-cyan-400" />
+          <span>Safety & Cryptographic Tenant Isolation</span>
         </div>
-        <p className="text-slate-600 leading-relaxed">
-          AIValueGuard request fingerprints incorporate the <strong>Workspace ID, Target Model, System Instruction, Context Body, Prompt, and Temperature</strong>.
-          Responses with failed quality evaluations, provider errors, or <code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">allow_cache: false</code> are strictly prevented from entering the cache store.
+        <p className="text-slate-400 leading-relaxed font-sans">
+          Portkey request fingerprints cryptographically incorporate the <strong>Workspace ID, Model ID, System Instructions, Context Body, Prompt, and Temperature</strong>.
+          Responses with failed quality evaluations, provider errors, or <code className="bg-obsidian-850 px-1.5 py-0.5 rounded text-[11px] font-mono text-cyan-400 border border-obsidian-border">allow_cache: false</code> are strictly prevented from entering the cache store.
         </p>
       </div>
 
       {/* Active Cache Entries Table */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-        <div className="border-b border-slate-100 p-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-900">Stored Cache Records</h3>
+      <div className="rounded-xl border border-obsidian-border bg-obsidian-card shadow-lg shadow-black/20 overflow-hidden">
+        <div className="border-b border-obsidian-border p-4 flex items-center justify-between bg-obsidian-850/50">
+          <h3 className="text-sm font-semibold text-white">Stored Cache Records</h3>
           <span className="text-xs text-slate-400 font-mono">{entries.length} active fingerprints</span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-obsidian-850/80 border-b border-obsidian-border text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-3 px-4">Cache Fingerprint</th>
                 <th className="py-3 px-4">Model</th>
@@ -170,35 +173,35 @@ export const CachePage: React.FC = () => {
                 <th className="py-3 px-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-sans">
+            <tbody className="divide-y divide-obsidian-border/50">
               {entries.length > 0 ? (
                 entries.map((entry) => (
-                  <tr key={entry.cache_key} className="hover:bg-slate-50/70 transition">
-                    <td className="py-3 px-4 font-mono font-medium text-slate-800">
-                      {entry.cache_key.substring(0, 12)}...
+                  <tr key={entry.cache_key} className="hover:bg-white/[0.02] transition">
+                    <td className="py-3 px-4 font-mono font-medium text-cyan-400">
+                      {entry.cache_key.substring(0, 14)}...
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-medium text-slate-900">{entry.model}</span>
+                      <span className="font-mono font-medium text-white">{entry.model}</span>
                     </td>
-                    <td className="py-3 px-4 text-slate-700 max-w-sm truncate" title={entry.prompt_preview}>
+                    <td className="py-3 px-4 text-slate-300 max-w-sm truncate" title={entry.prompt_preview}>
                       {entry.prompt_preview}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-semibold text-brand-600">
+                    <td className="py-3 px-4 text-right font-mono font-semibold text-cyan-400">
                       {entry.hit_count}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-slate-700">
+                    <td className="py-3 px-4 text-right font-mono text-slate-300">
                       {(entry.prompt_tokens + entry.completion_tokens) * entry.hit_count}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-emerald-700">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-emerald-400">
                       ${(entry.cost_saved_per_hit * entry.hit_count).toFixed(5)}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-slate-500">
+                    <td className="py-3 px-4 text-right font-mono text-slate-400">
                       {new Date(entry.expires_at).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => handleInvalidateKey(entry.cache_key)}
-                        className="rounded p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                        className="rounded p-1 text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition"
                         title="Evict entry"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -208,7 +211,7 @@ export const CachePage: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-500 font-mono">
                     No active cache entries found. Execute queries through the Gateway or Playground to populate cache.
                   </td>
                 </tr>

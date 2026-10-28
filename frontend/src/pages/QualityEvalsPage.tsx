@@ -11,7 +11,9 @@ import {
   ToggleRight,
   Sparkles,
   Layers,
-  HelpCircle
+  HelpCircle,
+  Flame,
+  Lock
 } from 'lucide-react';
 import { Badge } from '../components/Badge';
 import { StatCard } from '../components/StatCard';
@@ -58,7 +60,7 @@ export const QualityEvalsPage: React.FC = () => {
       setTestLoading(true);
       const res = await api.runEvaluationTest(testContent);
       setTestResult(res);
-      await loadRules(); // refresh pass/fail counts
+      await loadRules();
     } catch (e) {
       alert("Evaluation failed");
     } finally {
@@ -71,19 +73,21 @@ export const QualityEvalsPage: React.FC = () => {
   const overallPassRate = totalChecks > 0 ? ((totalPasses / totalChecks) * 100).toFixed(1) : "100.0";
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto text-left">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Quality Evaluations & Structural Auditing</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-xl font-heading tracking-wide uppercase font-bold text-white flex items-center gap-2">
+            Quality Evaluations & Structural Guardrails
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">
             Automated schema enforcement, JSON completeness checks, refusal detection, and bounded fallback escalation
           </p>
         </div>
 
         <button
           onClick={loadRules}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition"
+          className="flex items-center gap-1.5 rounded-lg border border-obsidian-border bg-obsidian-card px-3 py-1.5 text-xs font-mono font-medium text-slate-300 hover:text-white transition shadow-sm"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh Audits
         </button>
@@ -116,13 +120,13 @@ export const QualityEvalsPage: React.FC = () => {
       </div>
 
       {/* Live Quality Evaluator Tester */}
-      <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-5 shadow-xs">
+      <div className="rounded-xl border border-purple-500/30 bg-obsidian-card p-5 shadow-lg shadow-black/20">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-brand-600" />
-            <h3 className="text-sm font-bold text-slate-900">Live Quality Validation Test Bench</h3>
+            <Sparkles className="h-4 w-4 text-purple-400" />
+            <h3 className="text-sm font-bold text-white font-mono">Live Guardrail Validation Test Bench</h3>
           </div>
-          <span className="text-xs text-slate-500">Test completions against all active criteria</span>
+          <span className="text-xs text-slate-400 font-mono">Test completions against active criteria</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
@@ -132,27 +136,27 @@ export const QualityEvalsPage: React.FC = () => {
               value={testContent}
               onChange={(e) => setTestContent(e.target.value)}
               placeholder="Paste model output (JSON or text) here..."
-              className="w-full rounded-lg border border-slate-200 bg-white p-3 text-xs font-mono text-slate-800 focus:outline-brand-500"
+              className="w-full rounded-xl border border-obsidian-border bg-obsidian-850 p-3 text-xs font-mono text-slate-200 focus:border-purple-500 outline-none leading-relaxed"
             />
             <button
               onClick={handleRunLiveTest}
               disabled={testLoading || !testContent.trim()}
-              className="mt-2 flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-brand-700 disabled:opacity-50 transition"
+              className="mt-2 flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-700 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-purple-600/25 disabled:opacity-50 transition"
             >
               <Play className="h-3.5 w-3.5" />
               {testLoading ? 'Evaluating against rules...' : 'Run Audit On Content'}
             </button>
           </div>
 
-          <div className="bg-white rounded-lg p-3.5 border border-indigo-100 flex flex-col justify-between">
+          <div className="bg-obsidian-850 rounded-xl p-4 border border-obsidian-border flex flex-col justify-between">
             {testResult ? (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span className="font-semibold text-xs text-slate-800">
+              <div className="space-y-3 font-mono text-xs">
+                <div className="flex items-center justify-between border-b border-obsidian-border pb-2">
+                  <span className="font-semibold text-white">
                     Audit Status: {testResult.passed ? (
-                      <span className="text-emerald-700 font-bold ml-1">PASSED ALL CHECKS</span>
+                      <span className="text-emerald-400 font-bold ml-1">PASSED ALL CHECKS</span>
                     ) : (
-                      <span className="text-rose-700 font-bold ml-1">QUALITY CHECKS FAILED</span>
+                      <span className="text-rose-400 font-bold ml-1">QUALITY CHECKS FAILED</span>
                     )}
                   </span>
                   <Badge variant={testResult.passed ? 'success' : 'error'}>
@@ -164,20 +168,20 @@ export const QualityEvalsPage: React.FC = () => {
                   {testResult.results.map((r: any) => (
                     <div key={r.rule_id} className="text-xs flex items-start gap-2">
                       {r.passed ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+                        <XCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
                       )}
                       <div>
-                        <span className="font-semibold text-slate-800">{r.rule_name}: </span>
-                        <span className="text-slate-600">{r.message}</span>
+                        <span className="font-semibold text-white">{r.rule_name}: </span>
+                        <span className="text-slate-400">{r.message}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-slate-400 text-center py-6">
+              <div className="flex h-full items-center justify-center text-xs text-slate-500 text-center py-6 font-mono">
                 Click "Run Audit On Content" to evaluate the completion payload above against JSON schema, required keys, length bounds, and refusal checks.
               </div>
             )}
@@ -186,14 +190,14 @@ export const QualityEvalsPage: React.FC = () => {
       </div>
 
       {/* Rules Configuration Table */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-        <div className="border-b border-slate-100 p-4">
-          <h3 className="text-sm font-semibold text-slate-900">Configured Quality Guardrails</h3>
+      <div className="rounded-xl border border-obsidian-border bg-obsidian-card shadow-lg shadow-black/20 overflow-hidden">
+        <div className="border-b border-obsidian-border p-4 bg-obsidian-850/50">
+          <h3 className="text-sm font-semibold text-white">Configured Quality Guardrails</h3>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-obsidian-850/80 border-b border-obsidian-border text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-3 px-4">Guardrail Name</th>
                 <th className="py-3 px-4">Type</th>
@@ -204,27 +208,27 @@ export const QualityEvalsPage: React.FC = () => {
                 <th className="py-3 px-4 text-center">State</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-obsidian-border/50">
               {rules.map((rule) => (
-                <tr key={rule.id} className="hover:bg-slate-50/70 transition">
-                  <td className="py-3 px-4 font-semibold text-slate-900">{rule.name}</td>
-                  <td className="py-3 px-4 font-mono text-slate-500">{rule.rule_type}</td>
-                  <td className="py-3 px-4 text-slate-600 max-w-xs">{rule.description}</td>
+                <tr key={rule.id} className="hover:bg-white/[0.02] transition">
+                  <td className="py-3 px-4 font-semibold text-white">{rule.name}</td>
+                  <td className="py-3 px-4 font-mono text-purple-400">{rule.rule_type}</td>
+                  <td className="py-3 px-4 text-slate-400 max-w-xs">{rule.description}</td>
                   <td className="py-3 px-4 text-center font-mono">
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
+                    <span className="rounded bg-obsidian-850 border border-obsidian-border px-2 py-0.5 text-[10px] font-bold text-slate-300">
                       {rule.severity.toUpperCase()}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-700">
+                  <td className="py-3 px-4 text-right font-mono font-semibold text-emerald-400">
                     {rule.pass_rate_pct}%
                   </td>
-                  <td className="py-3 px-4 text-right font-mono text-slate-600">
-                    {rule.pass_count} / <span className="text-rose-600">{rule.fail_count}</span>
+                  <td className="py-3 px-4 text-right font-mono text-slate-400">
+                    {rule.pass_count} / <span className="text-rose-400">{rule.fail_count}</span>
                   </td>
                   <td className="py-3 px-4 text-center">
                     <button
                       onClick={() => handleToggleRule(rule)}
-                      className={`text-sm transition ${rule.is_active ? 'text-brand-600' : 'text-slate-300'}`}
+                      className={`text-sm transition ${rule.is_active ? 'text-cyan-400' : 'text-slate-600'}`}
                       title={rule.is_active ? "Rule active" : "Rule disabled"}
                     >
                       {rule.is_active ? <ToggleRight className="h-6 w-6" /> : <ToggleLeft className="h-6 w-6" />}

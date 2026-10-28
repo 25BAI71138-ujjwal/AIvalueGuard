@@ -21,6 +21,9 @@ class GatewayChatRequest(BaseModel):
     allow_cache: bool = True
     workspace_id: str = "ws_default"
     tenant_id: Optional[str] = None
+    task_name: Optional[str] = "General Task"
+    project_name: Optional[str] = "Default Project"
+    session_id: Optional[str] = None
 
 class ContextReductionMeta(BaseModel):
     raw_tokens: int
@@ -73,3 +76,6 @@ class GatewayChatResponse(BaseModel):
     optimization_overhead_usd: float = 0.0
     status: str
     is_demo: bool = True
+    task_name: Optional[str] = "General Task"
+    project_name: Optional[str] = "Default Project"
+    session_id: Optional[str] = None

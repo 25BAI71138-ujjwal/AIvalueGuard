@@ -35,11 +35,10 @@ class GroqProviderAdapter(BaseProviderAdapter):
             user_content = f"Context:\n{context}\n\nTask:\n{prompt}"
         messages.append({"role": "user", "content": user_content})
 
-        # Default Groq model if shorthand used
-        groq_model = model_id if "llama" in model_id or "mixtral" in model_id else "llama-3.3-70b-versatile"
+        groq_candidates = [model_id, "qwen/qwen3.8-27b", "openai/gpt-oss-120b"]
 
         payload = {
-            "model": groq_model,
+            "model": groq_candidates[0],
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens
@@ -48,15 +47,27 @@ class GroqProviderAdapter(BaseProviderAdapter):
             payload["response_format"] = {"type": "json_object"}
 
         start = time.perf_counter()
-        async with httpx.AsyncClient(timeout=25.0) as client:
-            resp = await client.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload)
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            resp = None
+            last_err = ""
+            for g_model in groq_candidates:
+                try:
+                    payload["model"] = g_model
+                    resp = await client.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        break
+                    last_err = f"({g_model} returned {resp.status_code}): {resp.text[:200]}"
+                except Exception as ex:
+                    last_err = f"({g_model} request error: {str(ex)[:100]})"
+
             latency_ms = round((time.perf_counter() - start) * 1000.0, 1)
 
-            if resp.status_code != 200:
-                raise RuntimeError(f"Groq API Error ({resp.status_code}): {resp.text[:300]}")
+            if not resp or resp.status_code != 200:
+                raise RuntimeError(f"Groq API Error: {last_err}")
 
             data = resp.json()
-            completion_text = data["choices"][0]["message"]["content"]
+            choice = data["choices"][0]
+            completion_text = choice.get("message", {}).get("content") or choice.get("message", {}).get("reasoning") or ""
             usage = data.get("usage", {})
             prompt_tokens = usage.get("prompt_tokens", int(len(user_content) / 4))
             completion_tokens = usage.get("completion_tokens", int(len(completion_text) / 4))

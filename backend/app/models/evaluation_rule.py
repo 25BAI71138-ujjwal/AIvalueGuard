@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text
-from backend.app.database import Base
+from backend.app.database import Base, utc_now
 
 class EvaluationRule(Base):
     __tablename__ = "evaluation_rules"
@@ -14,4 +14,4 @@ class EvaluationRule(Base):
     is_active = Column(Boolean, default=True)
     pass_count = Column(Integer, default=0)
     fail_count = Column(Integer, default=0)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)

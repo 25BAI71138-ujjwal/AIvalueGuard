@@ -9,7 +9,8 @@ class Settings(BaseSettings):
     
     # Environment & Demo Mode
     ENVIRONMENT: str = "development" # development | staging | production
-    DEMO_MODE: bool = True # Defaults to Demo Mode for hackathon readiness without mandatory keys
+    DEMO_MODE: bool = False # Disabled by default when keys are configured
+
     
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./aivalueguard.db"
